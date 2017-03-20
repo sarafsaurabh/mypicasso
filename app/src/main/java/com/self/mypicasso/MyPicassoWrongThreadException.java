@@ -3,13 +3,14 @@ package com.self.mypicasso;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.widget.ImageView;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-class MyPicassoLibrary {
+class MyPicassoWrongThreadException {
 
     public interface ImageCallback {
         void onSuccess(Bitmap bitmap);
@@ -17,9 +18,9 @@ class MyPicassoLibrary {
         void onFailure(Throwable t);
     }
 
-    public static void load(String stringUrl, ImageCallback callback) {
+    public static void load(String stringUrl, ImageView imageView, ImageCallback callback) {
 
-        DownloadImageTask task = new DownloadImageTask(callback);
+        DownloadImageTask task = new DownloadImageTask(imageView, callback);
 
         task.execute(stringUrl);
 
@@ -27,9 +28,11 @@ class MyPicassoLibrary {
 
     private static class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 
+        ImageView mImageView;
         ImageCallback mImageCallback;
 
-        public DownloadImageTask(ImageCallback imageCallback) {
+        public DownloadImageTask(ImageView imageView, ImageCallback imageCallback) {
+            mImageView = imageView;
             mImageCallback = imageCallback;
         }
 
@@ -47,6 +50,7 @@ class MyPicassoLibrary {
 
                 bitmap = BitmapFactory.decodeStream(in);
                 in.close();
+                mImageView.setImageBitmap(bitmap);
 
             } catch (IOException e) {
                 mImageCallback.onFailure(e);
